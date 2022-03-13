@@ -44,6 +44,8 @@ impl Lexer {
             self.move_to_next();
         }
 
+        // Fazer aqui o teste de palavre reservada?
+        // .
         Token::new(val, TokenType::Identificador)
     }
 
@@ -51,10 +53,36 @@ impl Lexer {
         // println!("PARSE NUM");
         let mut val = String::new();
 
-        while self.cur_char.is_alphanumeric() {
+        while self.cur_char.is_numeric() {
             val.push(self.cur_char);
             self.move_to_next();
         }
+        
+        if self.cur_char == '.' {
+            val.push(self.cur_char);
+            self.move_to_next();
+        }
+        
+        while self.cur_char.is_numeric() {
+            val.push(self.cur_char);
+            self.move_to_next();
+        }
+
+        if self.cur_char == 'e' {
+            val.push(self.cur_char);
+            self.move_to_next();
+        }
+
+        if self.cur_char == '-' {
+            val.push(self.cur_char);
+            self.move_to_next();
+        }
+
+        while self.cur_char.is_numeric() {
+            val.push(self.cur_char);
+            self.move_to_next();
+        }
+
 
         Token::new(val, TokenType::Literal)
     }
@@ -62,6 +90,7 @@ impl Lexer {
     pub fn next_token(&mut self) -> Token {
         while self.cur_char != '\0' {
 
+            //ANDA espaço em branco
             self.move_whitespace();
 
             if self.cur_char.is_numeric() {
@@ -75,9 +104,18 @@ impl Lexer {
             }
 
             match self.cur_char {
-                '='|'+'|'-'|'*'|'/' => return self.advance_with(Token::new(self.cur_char.to_string(), TokenType::Operador)),
+                '='|'+'|'-'|'/' => return self.advance_with(Token::new(self.cur_char.to_string(), TokenType::Operador)),
+                '*' => {
+                    if self.peek(1) == '*' { 
+                        self.move_to_next();
+                        return self.advance_with(Token::new(String::from("**"), TokenType::Operador))
+                    } else { 
+                        return self.advance_with(Token::new(String::from("*"), TokenType::Operador))
+                    };
+                },
                 '>' => {
                     if self.peek(1) == '=' { 
+                        self.move_to_next();
                         return self.advance_with(Token::new(String::from(">="), TokenType::Operador))
                     } else { 
                         return self.advance_with(Token::new(String::from(">"), TokenType::Operador))
@@ -85,11 +123,13 @@ impl Lexer {
                 },
                 '<' => {
                     if self.peek(1) == '=' { 
+                        self.move_to_next();
                         return self.advance_with(Token::new(String::from("<="), TokenType::Operador)) 
                     } else { 
                         return self.advance_with(Token::new(String::from("<"), TokenType::Operador))
                     };
                 },
+                '('|')' => return self.advance_with(Token::new(self.cur_char.to_string(), TokenType::Agrupador)),
                 _ => return self.advance_with(Token::new(String::from("UNK"), TokenType::Operador))
             }
         }
@@ -108,12 +148,3 @@ impl Lexer {
         self.code.chars().nth(std::cmp::min(self.index + offset, self.code_len) as usize).unwrap()
     }
 }
-
-pub fn between(c:char, s:char, e: char) -> bool {
-    if c >= s || c <= e {
-        true
-    } else{
-        false
-    }
-}
-//https://youtu.be/PRcMPwaWj1Y

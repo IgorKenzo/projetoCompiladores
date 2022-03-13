@@ -3,6 +3,7 @@ pub enum TokenType{
     Identificador,
     Operador,
     Literal,
+    Agrupador,
     EoF
 }
 
