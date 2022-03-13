@@ -12,7 +12,6 @@ fn main() {
     // operadores::find("= + - * /");
     // maqest::run("./operators.txt", "- ");
 
-    println!("AAAAAAAAAAAAAAAA");
     let mut lexer = Lexer::new(String::from("a = 12 + 3"));
     let mut tok : Token;
     loop {

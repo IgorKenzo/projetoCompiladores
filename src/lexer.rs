@@ -18,18 +18,28 @@ impl Lexer {
         }
     }
 
+    pub fn move_whitespace(&mut self) {
+        while self.cur_char == '\n' || self.cur_char == '\r' || self.cur_char == ' ' || self.cur_char == '\t' {
+            self.move_to_next()
+        }
+    }
+
     pub fn move_to_next(&mut self){
-        if self.index < self.code_len &&  self.cur_char != '\0' {
+        if self.index < self.code_len && self.cur_char != '\0' {
             self.index += 1;
-            self.cur_char = self.code.chars().nth(self.index as usize).unwrap();
+            if self.index != self.code_len {
+                self.cur_char = self.code.chars().nth(self.index as usize).unwrap();
+            } else {
+                self.cur_char = '\0';
+            }
         }
     }
 
     pub fn parse_id(&mut self) -> Token {
-        println!("PARSE ID");
+        // println!("PARSE ID");
         let mut val = String::new();
 
-        while self.cur_char.is_digit(10) {
+        while self.cur_char.is_alphanumeric() {
             val.push(self.cur_char);
             self.move_to_next();
         }
@@ -38,10 +48,10 @@ impl Lexer {
     }
 
     pub fn parse_number(&mut self) -> Token {
-        println!("PARSE NUM");
+        // println!("PARSE NUM");
         let mut val = String::new();
 
-        while between(self.cur_char, '0', '9') {
+        while self.cur_char.is_alphanumeric() {
             val.push(self.cur_char);
             self.move_to_next();
         }
@@ -51,13 +61,16 @@ impl Lexer {
 
     pub fn next_token(&mut self) -> Token {
         while self.cur_char != '\0' {
-            if self.cur_char.is_digit(10)  {
-                let t = self.parse_id();
+
+            self.move_whitespace();
+
+            if self.cur_char.is_numeric() {
+                let t = self.parse_number();
                 return self.advance_with(t)
             }
 
-            if between(self.cur_char, '0', '9') {
-                let t = self.parse_number();
+            if self.cur_char.is_alphabetic()  {
+                let t = self.parse_id();
                 return self.advance_with(t)
             }
 
