@@ -19,10 +19,9 @@ impl Lexer {
     }
 
     pub fn move_to_next(&mut self){
-        println!("{}", self.index);
         if self.index < self.code_len &&  self.cur_char != '\0' {
             self.index += 1;
-            self.cur_char = self.code.chars().nth(0).unwrap();
+            self.cur_char = self.code.chars().nth(self.index as usize).unwrap();
         }
     }
 
@@ -30,7 +29,7 @@ impl Lexer {
         println!("PARSE ID");
         let mut val = String::new();
 
-        while between(self.cur_char, 'a', 'z') {
+        while self.cur_char.is_digit(10) {
             val.push(self.cur_char);
             self.move_to_next();
         }
@@ -52,7 +51,7 @@ impl Lexer {
 
     pub fn next_token(&mut self) -> Token {
         while self.cur_char != '\0' {
-            if between(self.cur_char, 'a', 'z') {
+            if self.cur_char.is_digit(10)  {
                 let t = self.parse_id();
                 return self.advance_with(t)
             }
