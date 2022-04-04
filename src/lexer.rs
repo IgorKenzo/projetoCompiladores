@@ -46,6 +46,10 @@ impl Lexer {
 
         // Fazer aqui o teste de palavre reservada?
         // .
+        if val == "main" {
+            return Token::new(val, TokenType::ReservMain);
+        }
+
         Token::new(val, TokenType::Identificador)
     }
 
@@ -130,6 +134,8 @@ impl Lexer {
                     };
                 },
                 '('|')' => return self.advance_with(Token::new(self.cur_char.to_string(), TokenType::Agrupador)),
+                '{' => return self.advance_with(Token::new(self.cur_char.to_string(), TokenType::LCol)),
+                '}' => return self.advance_with(Token::new(self.cur_char.to_string(), TokenType::RCol)),
                 _ => return self.advance_with(Token::new(String::from("UNK"), TokenType::Operador))
             }
         }

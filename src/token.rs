@@ -1,9 +1,12 @@
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum TokenType{
     Identificador,
     Operador,
     Literal,
     Agrupador,
+    LCol,
+    RCol,
+    ReservMain,
     EoF
 }
 
