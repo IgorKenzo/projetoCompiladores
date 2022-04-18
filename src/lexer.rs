@@ -46,9 +46,14 @@ impl Lexer {
 
         // Fazer aqui o teste de palavre reservada?
         // .
-        if val == "main" {
-            return Token::new(val, TokenType::ReservMain);
+        let reserv_words = ["main", "let", "if", "else", "while", "void" ,"char" ,"int" ,"double" ,"string"];
+
+        for rw in reserv_words.iter() {
+            if val == rw.to_string() {
+                return Token::new(val, TokenType::str_to_tk(rw));
+            }
         }
+        
 
         Token::new(val, TokenType::Identificador)
     }
@@ -136,6 +141,7 @@ impl Lexer {
                 '('|')' => return self.advance_with(Token::new(self.cur_char.to_string(), TokenType::Agrupador)),
                 '{' => return self.advance_with(Token::new(self.cur_char.to_string(), TokenType::LCol)),
                 '}' => return self.advance_with(Token::new(self.cur_char.to_string(), TokenType::RCol)),
+                ';' => return self.advance_with(Token::new(self.cur_char.to_string(), TokenType::SemiCol)),
                 _ => return self.advance_with(Token::new(String::from("UNK"), TokenType::Operador))
             }
         }

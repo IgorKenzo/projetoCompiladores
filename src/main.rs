@@ -2,7 +2,7 @@ mod token;
 mod lexer;
 mod parser;
 use lexer::Lexer;
-use token::Token;
+//use token::Token;
 use token::TokenType;
 
 
@@ -26,9 +26,9 @@ pub fn parser(code: String) {
 
     let mut lexer = Lexer::new(String::from(code));
 
-    prog(&mut lexer);
+    program(&mut lexer);
 
-    // tok = lexer.next_token();
+    // let mut tok : Token;
 
     // loop {
     //     tok = lexer.next_token();
@@ -40,15 +40,6 @@ pub fn parser(code: String) {
     // }
 }
 
-pub fn prog(lexer: &mut Lexer) {
-
-    read_token_type(lexer, TokenType::ReservMain);
-    read_token_type(lexer, TokenType::LCol);
-    num(lexer);
-    read_token_type(lexer, TokenType::RCol);
-
-}
-
 pub fn read_token_type(lexer: &mut Lexer, token_type : TokenType) {
     let tok = lexer.next_token();
     if tok.t_type != token_type {
@@ -57,6 +48,32 @@ pub fn read_token_type(lexer: &mut Lexer, token_type : TokenType) {
     }
 }
 
+
+pub fn program(lexer: &mut Lexer) {
+
+    read_token_type(lexer, TokenType::ReservMain);
+    block(lexer);
+    // read_token_type(lexer, TokenType::LCol);
+    // num(lexer);
+    // read_token_type(lexer, TokenType::RCol);
+
+}
+
+pub fn block(lexer: &mut Lexer) {
+    read_token_type(lexer, TokenType::LCol);
+    statement_list(lexer);
+    read_token_type(lexer, TokenType::RCol);
+}
+
+pub fn statement_list(lexer: &mut Lexer) {
+    if lexer.peek(1) != '}' {
+        statement(lexer);
+    }
+}
+
+pub fn statement(lexer: &mut Lexer) {
+    num(lexer);
+}
 
 pub fn num(lexer: &mut Lexer) {
     let token = lexer.next_token();
