@@ -2,7 +2,7 @@ mod token;
 mod lexer;
 mod parser;
 use lexer::Lexer;
-//use token::Token;
+use token::Token;
 use token::TokenType;
 
 
@@ -28,16 +28,19 @@ pub fn parser(code: String) {
 
     program(&mut lexer);
 
-    // let mut tok : Token;
+    // debug_lexer(lexer);
+}
 
-    // loop {
-    //     tok = lexer.next_token();
-    //     if matches!(tok.t_type,TokenType::EoF) {
-    //         break;
-    //     }
+fn debug_lexer(mut lexer: Lexer) {
+    let mut tok : Token;
+    loop {
+        tok = lexer.next_token();
+        if matches!(tok.t_type,TokenType::EoF) {
+            break;
+        }
 
-    //     println!("TOKEN: {}, TIPO: {:?}", tok.value, tok.t_type);
-    // }
+        println!("TOKEN: {}, TIPO: {:?}", tok.value, tok.t_type);
+    }
 }
 
 pub fn read_token_type(lexer: &mut Lexer, token_type : TokenType) {
@@ -66,13 +69,28 @@ pub fn block(lexer: &mut Lexer) {
 }
 
 pub fn statement_list(lexer: &mut Lexer) {
-    if lexer.peek(1) != '}' {
+    while lexer.peek(1) != '}' {
         statement(lexer);
     }
 }
 
 pub fn statement(lexer: &mut Lexer) {
     num(lexer);
+}
+
+pub fn assignment_statement(lexer: &mut Lexer) {
+    read_token_type(lexer, TokenType::SemiCol);    
+}
+pub fn structured_statement(lexer: &mut Lexer) {
+    read_token_type(lexer, TokenType::SemiCol);
+}
+pub fn var_declare_statement(lexer: &mut Lexer) {
+    read_token_type(lexer, TokenType::SemiCol);
+}
+pub fn expression(lexer: &mut Lexer) {
+    // expression ::= simple-expression (relational-operator simple-expression)*
+    
+    read_token_type(lexer, TokenType::SemiCol);    
 }
 
 pub fn num(lexer: &mut Lexer) {

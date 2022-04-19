@@ -104,12 +104,12 @@ impl Lexer {
 
             if self.cur_char.is_numeric() {
                 let t = self.parse_number();
-                return self.advance_with(t)
+                return t;//self.advance_with(t)
             }
 
             if self.cur_char.is_alphabetic()  {
                 let t = self.parse_id();
-                return self.advance_with(t)
+                return t;//self.advance_with(t)
             }
 
             match self.cur_char {
