@@ -1,7 +1,29 @@
 #[derive(Debug, PartialEq)]
 pub enum TokenType{
     Identificador,
-    Operador,
+
+    // Operadores
+    OpSum,
+    OpMinus,
+    OpMult,
+    OpPower,
+    OpDiv,
+    
+        //Assing
+        OpAssign,
+    
+        //Rel
+        OpRelLt,
+        OpRelLe,
+        OpRelGt,
+        OpRelGe,
+        OpRelEq,
+        OpRelNe,
+
+        
+    
+
+    //
     Literal,
     StringLiteral,
     LCol,
@@ -9,6 +31,7 @@ pub enum TokenType{
     LPar,
     RPar,
     SemiCol,
+    Colon,
 
     //Palavras Reservadas
     ReservMain,
@@ -23,6 +46,7 @@ pub enum TokenType{
     ReservString,
 
     Error,
+    ErUNK,
     EoF
 }
  

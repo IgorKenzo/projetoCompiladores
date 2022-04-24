@@ -1,6 +1,7 @@
 use crate::token::Token;
 use crate::token::TokenType;
 
+#[derive(Clone)]
 pub struct Lexer {
     pub cur_char: char,
     pub index: u32,
@@ -133,29 +134,39 @@ impl Lexer {
             }
 
             match self.cur_char {
-                '='|'+'|'-'|'/' => return self.advance_with(Token::new(self.cur_char.to_string(), TokenType::Operador)),
+                '=' => {
+                    if self.peek(1) == '=' { 
+                        self.move_to_next();
+                        return self.advance_with(Token::new(String::from("=="), TokenType::OpRelEq));
+                    } else { 
+                        return self.advance_with(Token::new(String::from("="), TokenType::OpAssign));
+                    };
+                },
+                '+' => return self.advance_with(Token::new(self.cur_char.to_string(), TokenType::OpSum)),
+                '-' => return self.advance_with(Token::new(self.cur_char.to_string(), TokenType::OpMinus)),
+                '/' => return self.advance_with(Token::new(self.cur_char.to_string(), TokenType::OpDiv)),
                 '*' => {
                     if self.peek(1) == '*' { 
                         self.move_to_next();
-                        return self.advance_with(Token::new(String::from("**"), TokenType::Operador))
+                        return self.advance_with(Token::new(String::from("**"), TokenType::OpPower));
                     } else { 
-                        return self.advance_with(Token::new(String::from("*"), TokenType::Operador))
+                        return self.advance_with(Token::new(String::from("*"), TokenType::OpMult));
                     };
                 },
                 '>' => {
                     if self.peek(1) == '=' { 
                         self.move_to_next();
-                        return self.advance_with(Token::new(String::from(">="), TokenType::Operador))
+                        return self.advance_with(Token::new(String::from(">="), TokenType::OpRelGe));
                     } else { 
-                        return self.advance_with(Token::new(String::from(">"), TokenType::Operador))
+                        return self.advance_with(Token::new(String::from(">"), TokenType::OpRelGt));
                     };
                 },
                 '<' => {
                     if self.peek(1) == '=' { 
                         self.move_to_next();
-                        return self.advance_with(Token::new(String::from("<="), TokenType::Operador)) 
+                        return self.advance_with(Token::new(String::from("<="), TokenType::OpRelLe));
                     } else { 
-                        return self.advance_with(Token::new(String::from("<"), TokenType::Operador))
+                        return self.advance_with(Token::new(String::from("<"), TokenType::OpRelLt));
                     };
                 },
                 '(' => return self.advance_with(Token::new(self.cur_char.to_string(), TokenType::LPar)),
@@ -163,7 +174,7 @@ impl Lexer {
                 '{' => return self.advance_with(Token::new(self.cur_char.to_string(), TokenType::LCol)),
                 '}' => return self.advance_with(Token::new(self.cur_char.to_string(), TokenType::RCol)),
                 ';' => return self.advance_with(Token::new(self.cur_char.to_string(), TokenType::SemiCol)),
-                _ => return self.advance_with(Token::new(String::from("UNK"), TokenType::Operador))
+                _ => return self.advance_with(Token::new(String::from("UNK"), TokenType::ErUNK))
             }
         }
 
@@ -179,5 +190,12 @@ impl Lexer {
 
     pub fn peek(&self, offset: u32) -> char {
         self.code.chars().nth(std::cmp::min(self.index + offset, self.code_len) as usize).unwrap()
+    }
+
+    pub fn peek_token(&self) -> Token {
+
+        let mut l = self.clone();
+
+        l.next_token()
     }
 }
