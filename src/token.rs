@@ -3,9 +3,11 @@ pub enum TokenType{
     Identificador,
     Operador,
     Literal,
-    Agrupador,
+    StringLiteral,
     LCol,
     RCol,
+    LPar,
+    RPar,
     SemiCol,
 
     //Palavras Reservadas

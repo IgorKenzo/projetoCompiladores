@@ -80,6 +80,7 @@ pub fn statement_list(lexer: &mut Lexer) {
 pub fn statement(lexer: &mut Lexer) {
     //statement ::= (assignment-statement ";"|structured-statement|var-declare-statement ";" | expression ";") 
     expression(lexer);
+    read_token_type(lexer, TokenType::SemiCol);
 }
 
 pub fn assignment_statement(lexer: &mut Lexer) {
@@ -145,7 +146,16 @@ pub fn addition_operator(lexer: &mut Lexer) {
 
 pub fn factor(lexer: &mut Lexer) {
     //factor ::= '!'* ( variable | number | string | '(' expression ')' )
+    let tok = lexer.next_token();
 
+    if tok.t_type == TokenType::Identificador || tok.t_type == TokenType::Literal || tok.t_type == TokenType::StringLiteral {
+        println!("AEHO não sei oq fazer");
+    }
+
+    if tok.t_type == TokenType::RPar {
+        expression(lexer);
+        read_token_type(lexer, TokenType::RPar);
+    }
 
 }
 pub fn multiplication_operator(lexer: &mut Lexer) {

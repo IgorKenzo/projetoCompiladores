@@ -96,6 +96,21 @@ impl Lexer {
         Token::new(val, TokenType::Literal)
     }
 
+    pub fn parse_string(&mut self) -> Token {
+        let mut val = String::new();
+        self.move_to_next();
+
+        while self.cur_char != '"' {
+            val.push(self.cur_char);
+            self.move_to_next();
+        }
+
+        self.move_to_next();
+
+        Token::new(val, TokenType::StringLiteral)
+
+    }
+
     pub fn next_token(&mut self) -> Token {
         while self.cur_char != '\0' {
 
@@ -109,6 +124,11 @@ impl Lexer {
 
             if self.cur_char.is_alphabetic()  {
                 let t = self.parse_id();
+                return t;//self.advance_with(t)
+            }
+
+            if self.cur_char == '"'  {
+                let t = self.parse_string();
                 return t;//self.advance_with(t)
             }
 
@@ -138,7 +158,8 @@ impl Lexer {
                         return self.advance_with(Token::new(String::from("<"), TokenType::Operador))
                     };
                 },
-                '('|')' => return self.advance_with(Token::new(self.cur_char.to_string(), TokenType::Agrupador)),
+                '(' => return self.advance_with(Token::new(self.cur_char.to_string(), TokenType::LPar)),
+                ')' => return self.advance_with(Token::new(self.cur_char.to_string(), TokenType::RPar)),
                 '{' => return self.advance_with(Token::new(self.cur_char.to_string(), TokenType::LCol)),
                 '}' => return self.advance_with(Token::new(self.cur_char.to_string(), TokenType::RCol)),
                 ';' => return self.advance_with(Token::new(self.cur_char.to_string(), TokenType::SemiCol)),
