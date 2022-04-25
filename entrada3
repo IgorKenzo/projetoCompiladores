@@ -1,0 +1,9 @@
+main {
+    let a : int = 3;
+    let b : int;
+    b = 5;
+    if 3 {
+        let a : int = 9;
+    }
+
+}

@@ -200,4 +200,16 @@ impl Lexer {
 
         l.next_token()
     }
+
+    pub fn peek_nth_token(&self, i: u8) -> Token {
+        let mut l = self.clone();
+
+        let mut t : Token = Token { value: "ERRO".to_string(), t_type: TokenType::ErUNK };
+
+        for _ in 0..i {
+           t = l.next_token();
+        }
+
+        t
+    }
 }

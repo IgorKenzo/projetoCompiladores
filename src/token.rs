@@ -79,9 +79,9 @@ pub enum VarType {
     Double,
     String,
 }
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug)]
 pub struct VarStruct {
-    pub value : &'static str,
+    pub value : String,
     pub v_type: VarType
 }
 
