@@ -8,6 +8,7 @@ pub enum TokenType{
     OpMult,
     OpPower,
     OpDiv,
+    OpMod,
     
         //Assing
         OpAssign,

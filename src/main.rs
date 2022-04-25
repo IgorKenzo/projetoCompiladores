@@ -234,7 +234,29 @@ pub fn simple_expression(lexer: &mut Lexer, debug: bool) -> i32 {
 pub fn term(lexer: &mut Lexer, debug: bool) -> i32 {
     if debug { println!("term"); }
     //term ::= factor (multiplication-operator factor)*
-    factor(lexer, debug)
+
+    let mut t = factor(lexer, debug);
+    //fazer while
+    let mut temp = lexer.peek_token().t_type;
+
+    while temp == TokenType::OpMult || temp == TokenType::OpDiv || temp == TokenType::OpMod  {
+        let op = multiplication_operator(lexer, debug);
+        let t2 = term(lexer, debug);
+
+        if op == TokenType::OpMult {
+            t *= t2;
+        }
+        else if op == TokenType::OpDiv {
+            t /= t2;
+        }
+        else if op == TokenType::OpMod {
+            t %= t2;
+        }
+
+        temp = lexer.peek_token().t_type;
+    }
+
+    t
 }
 
 pub fn addition_operator(lexer: &mut Lexer, debug: bool) -> TokenType {
@@ -264,10 +286,11 @@ pub fn factor(lexer: &mut Lexer, debug: bool) -> i32 {
 
     -1
 }
-pub fn multiplication_operator(lexer: &mut Lexer, debug: bool) {
+pub fn multiplication_operator(lexer: &mut Lexer, debug: bool) -> TokenType {
     if debug { println!("multiplication_operator"); }
-    //multiplication-operator ::= "*" | "/" | div | mod | "&&" 
-
+    //multiplication-operator ::= "*" | "/" | % | "&&" 
+    let tok = lexer.next_token();
+    tok.t_type
 }
 
 // pub fn identifier(lexer: &mut Lexer) {

@@ -153,6 +153,7 @@ impl Lexer {
                         return self.advance_with(Token::new(String::from("*"), TokenType::OpMult));
                     };
                 },
+                '%' => return self.advance_with(Token::new(self.cur_char.to_string(), TokenType::OpMod)),
                 '>' => {
                     if self.peek(1) == '=' { 
                         self.move_to_next();
