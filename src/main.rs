@@ -119,6 +119,7 @@ pub fn statement(lexer: &mut Lexer, debug: bool) {
     }
     else { //arrumar
         expression(lexer, debug);
+        read_token_type(lexer, TokenType::SemiCol);
     }   
 }
 
@@ -200,8 +201,8 @@ pub fn expression(lexer: &mut Lexer, debug: bool) -> i32 {
     if debug { println!("expression"); }
     // expression ::= simple-expression (relational-operator simple-expression)*
     let v = simple_expression(lexer, debug);
-    read_token_type(lexer, TokenType::SemiCol);    
-    println!("{}",v);
+    
+    println!("Expression: {}",v);
     v
 }
 
@@ -212,6 +213,7 @@ pub fn simple_expression(lexer: &mut Lexer, debug: bool) -> i32 {
     let mut t = term(lexer, debug);
     //fazer while
     let mut temp = lexer.peek_token().t_type;
+
     while temp == TokenType::OpSum || temp == TokenType::OpMinus  {
         let op = addition_operator(lexer, debug);
         let t2 = term(lexer, debug);
@@ -246,14 +248,16 @@ pub fn factor(lexer: &mut Lexer, debug: bool) -> i32 {
     if debug { println!("factor"); }
     //factor ::= '!'* ( variable | number | string | '(' expression ')' )
     let tok = lexer.next_token();
-
+    // println!("TOK {:?}; PEEK {:?}", tok.value, lexer.peek_token().value);
     if  tok.t_type == TokenType::Literal { //tok.t_type == TokenType::Identificador || || tok.t_type == TokenType::StringLiteral
         // println!("AEHO não sei oq fazer");
         return tok.value.parse::<i32>().unwrap();
     }
-
-    if tok.t_type == TokenType::RPar {
+    
+    if tok.t_type == TokenType::LPar {
+        
         let t = expression(lexer, debug);
+        
         read_token_type(lexer, TokenType::RPar);
         return t;
     }
