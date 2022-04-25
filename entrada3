@@ -2,6 +2,9 @@ main {
     let a : int = 3;
     let b : int;
     b = 5;
+
+    a - b;
+
     if 3 {
         let a : int = 9;
     }

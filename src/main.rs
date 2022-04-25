@@ -5,6 +5,7 @@ use lexer::Lexer;
 use token::Token;
 use token::TokenType;
 use token::VarStruct;
+use token::VarType;
 
 
 use std::env;
@@ -281,6 +282,7 @@ pub fn term(lexer: &mut Lexer, debug: bool, simbolos : &mut HashMap<String, VarS
     t
 }
 
+// ------- ARRUMAR
 pub fn addition_operator(lexer: &mut Lexer, debug: bool) -> TokenType {
     if debug { println!("addition_operator"); }
     //addition-operator ::= "+" | "-" | "||" 
@@ -301,6 +303,7 @@ pub fn power_operator(lexer: &mut Lexer, debug: bool) -> TokenType {
     let tok = lexer.next_token();
     tok.t_type
 }
+// -------
 
 pub fn power(lexer: &mut Lexer, debug: bool, simbolos : &mut HashMap<String, VarStruct>) -> i32 {
 
@@ -327,7 +330,16 @@ pub fn factor(lexer: &mut Lexer, debug: bool, simbolos : &mut HashMap<String, Va
     //factor ::= '!'* ( variable | number | string | '(' expression ')' )
     let tok = lexer.next_token();
     // println!("TOK {:?}; PEEK {:?}", tok.value, lexer.peek_token().value);
-    if  tok.t_type == TokenType::Literal { //tok.t_type == TokenType::Identificador || || tok.t_type == TokenType::StringLiteral
+
+    if tok.t_type == TokenType::Identificador {
+        let v_stru = simbolos.get_mut(&tok.value).unwrap();
+        match v_stru.v_type {
+            VarType::Int => { return v_stru.value.parse::<i32>().unwrap(); }
+            _ => {return i32::MIN;}
+        }
+    }
+
+    if  tok.t_type == TokenType::Literal { //|| tok.t_type == TokenType::StringLiteral
         // println!("AEHO não sei oq fazer");
         return tok.value.parse::<i32>().unwrap();
     }
