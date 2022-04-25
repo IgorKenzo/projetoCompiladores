@@ -128,6 +128,7 @@ pub fn assignment_statement(lexer: &mut Lexer, debug: bool) {
     //assignment-statement ::= variable assignment-operator expression 
     read_token_type(lexer, TokenType::SemiCol);    
 }
+
 pub fn structured_statement(lexer: &mut Lexer, i: u8, debug: bool) {
     if debug { println!("structured_statement"); }
     //structured-statement ::= loop-statement | conditional-statement
@@ -137,6 +138,7 @@ pub fn structured_statement(lexer: &mut Lexer, i: u8, debug: bool) {
         _ => println!("STRUCTURED CODE NOT FOUND")
     }
 }
+
 pub fn var_declare_statement(lexer: &mut Lexer, debug: bool) {
     if debug { println!("var_declare_statement"); }
     //var-declare-statement ::= 'let' variable ':' type-specifier ( '=' expression )?
@@ -235,13 +237,13 @@ pub fn term(lexer: &mut Lexer, debug: bool) -> i32 {
     if debug { println!("term"); }
     //term ::= factor (multiplication-operator factor)*
 
-    let mut t = factor(lexer, debug);
+    let mut t = power(lexer, debug);//factor(lexer, debug);
     //fazer while
     let mut temp = lexer.peek_token().t_type;
 
     while temp == TokenType::OpMult || temp == TokenType::OpDiv || temp == TokenType::OpMod  {
         let op = multiplication_operator(lexer, debug);
-        let t2 = term(lexer, debug);
+        let t2 = power(lexer, debug);
 
         if op == TokenType::OpMult {
             t *= t2;
@@ -266,6 +268,40 @@ pub fn addition_operator(lexer: &mut Lexer, debug: bool) -> TokenType {
     tok.t_type
 }
 
+pub fn multiplication_operator(lexer: &mut Lexer, debug: bool) -> TokenType {
+    if debug { println!("multiplication_operator"); }
+    //multiplication-operator ::= "*" | "/" | % | "&&" 
+    let tok = lexer.next_token();
+    tok.t_type
+}
+
+pub fn power_operator(lexer: &mut Lexer, debug: bool) -> TokenType {
+    if debug { println!("power_operator"); }
+    //multiplication-operator ::= "*" | "/" | % | "&&" 
+    let tok = lexer.next_token();
+    tok.t_type
+}
+
+pub fn power(lexer: &mut Lexer, debug: bool) -> i32 {
+
+    let mut t = factor(lexer, debug);
+    //fazer while
+    let mut temp = lexer.peek_token().t_type;
+
+    while temp == TokenType::OpPower {
+        let op = power_operator(lexer, debug);
+        let t2 = factor(lexer, debug);
+
+        if op == TokenType::OpPower {
+            t = t.pow(t2 as u32);
+        }
+       
+        temp = lexer.peek_token().t_type;
+    }
+
+    t
+}
+
 pub fn factor(lexer: &mut Lexer, debug: bool) -> i32 {
     if debug { println!("factor"); }
     //factor ::= '!'* ( variable | number | string | '(' expression ')' )
@@ -285,12 +321,6 @@ pub fn factor(lexer: &mut Lexer, debug: bool) -> i32 {
     }
 
     -1
-}
-pub fn multiplication_operator(lexer: &mut Lexer, debug: bool) -> TokenType {
-    if debug { println!("multiplication_operator"); }
-    //multiplication-operator ::= "*" | "/" | % | "&&" 
-    let tok = lexer.next_token();
-    tok.t_type
 }
 
 // pub fn identifier(lexer: &mut Lexer) {
