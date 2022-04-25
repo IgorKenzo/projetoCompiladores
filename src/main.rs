@@ -4,6 +4,7 @@ mod parser;
 use lexer::Lexer;
 use token::Token;
 use token::TokenType;
+use token::VarStruct;
 
 
 use std::env;
@@ -11,7 +12,7 @@ use std::env;
 
 use std::fs;
 use std::process::exit;
-// use std::collections::HashMap;
+use std::collections::HashMap;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -27,7 +28,7 @@ pub fn parser(code: String, debug: bool) {
 
     let mut lexer = Lexer::new(String::from(code));
 
-    // let mut simbolos : HashMap<&str, bool> = HashMap::new();
+    let mut simbolos : HashMap<&str, VarStruct> = HashMap::new();
 
     program(&mut lexer, debug);
 

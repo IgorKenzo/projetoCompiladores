@@ -71,13 +71,18 @@ impl TokenType {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone, Copy)]
 pub enum VarType {
     Void,
     Char,
     Int,
     Double,
     String,
+}
+#[derive(Debug, Clone, Copy)]
+pub struct VarStruct {
+    pub value : &'static str,
+    pub v_type: VarType
 }
 
 pub struct Token {
