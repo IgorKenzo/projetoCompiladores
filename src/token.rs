@@ -39,11 +39,12 @@ pub enum TokenType{
     ReservIf,
     ReservElse,
     ReservWhile,
-    ReservVoid,
-    ReservChar,
-    ReservInt,
-    ReservDouble,
-    ReservString,
+    // ReservVoid,
+    // ReservChar,
+    // ReservInt,
+    // ReservDouble,
+    // ReservString,
+    DataType(VarType),
 
     Error,
     ErUNK,
@@ -59,14 +60,23 @@ impl TokenType {
             "if" => { return TokenType::ReservIf },
             "else" => { return TokenType::ReservElse },
             "while" => { return TokenType::ReservWhile },
-            "void"  => { return TokenType::ReservVoid },
-            "char"  => { return TokenType::ReservChar },
-            "int"  => { return TokenType::ReservInt },
-            "double"  => { return TokenType::ReservDouble },
-            "string" => { return TokenType::ReservString },
+            "void"  => { return TokenType::DataType(VarType::Void) },
+            "char"  => { return TokenType::DataType(VarType::Char) },
+            "int"  => { return TokenType::DataType(VarType::Int) },
+            "double"  => { return TokenType::DataType(VarType::Double) },
+            "string" => { return TokenType::DataType(VarType::String) },
             _ => { return TokenType::Error; }
         }
     }
+}
+
+#[derive(Debug, PartialEq)]
+pub enum VarType {
+    Void,
+    Char,
+    Int,
+    Double,
+    String,
 }
 
 pub struct Token {

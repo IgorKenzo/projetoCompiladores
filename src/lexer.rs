@@ -173,6 +173,7 @@ impl Lexer {
                 ')' => return self.advance_with(Token::new(self.cur_char.to_string(), TokenType::RPar)),
                 '{' => return self.advance_with(Token::new(self.cur_char.to_string(), TokenType::LCol)),
                 '}' => return self.advance_with(Token::new(self.cur_char.to_string(), TokenType::RCol)),
+                ':' => return self.advance_with(Token::new(self.cur_char.to_string(), TokenType::Colon)),
                 ';' => return self.advance_with(Token::new(self.cur_char.to_string(), TokenType::SemiCol)),
                 _ => return self.advance_with(Token::new(String::from("UNK"), TokenType::ErUNK))
             }

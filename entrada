@@ -1,4 +1,3 @@
 main { 
-    "assdsdasds";
-    9;
+    9 + 1 + 3;
 }
