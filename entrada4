@@ -3,5 +3,23 @@ main {
     let b : int = 2;
     let c : double = 3.14;
     let d : string = "teste";
-    let e : int = 2.9;
+    a != b;
+    a < b;
+    a <= b;
+    a > b;
+    a >= b;
+    a == b;
+
+    1 != 1;
+    1 == 1;
+    1 <= 1;
+    1 >= 1;
+    1 < 1;
+    1 > 1;
+
+    true == false;
+    true == true;
+
+    false != true;
+    false != false;
 }

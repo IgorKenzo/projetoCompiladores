@@ -245,15 +245,137 @@ pub fn if_statement(lexer: &mut Lexer, debug: bool, simbolos : &mut HashMap<Stri
 pub fn expression(lexer: &mut Lexer, debug: bool, simbolos : &mut HashMap<String, VarStruct>) -> VarStruct {
     if debug { println!("expression"); }
     // expression ::= simple-expression (relational-operator simple-expression)*
-    let v = simple_expression(lexer, debug, simbolos);
+    let mut se = simple_expression(lexer, debug, simbolos);
+
+    let mut temp = lexer.peek_token().t_type;
+
+    while temp == TokenType::OpRelLt|| temp == TokenType::OpRelLe|| temp == TokenType::OpRelGt|| temp == TokenType::OpRelGe|| temp == TokenType::OpRelEq|| temp == TokenType::OpRelNe {
+        let op = lexer.next_token().t_type; // consome token de operador relacional
+        let se2 = simple_expression(lexer, debug, simbolos);
+
+        if se.v_type != se2.v_type { eprintln!("Tipos incompatíveis {:?} com {:?}", se.v_type, se2.v_type); exit(1); }
+
+        if op == TokenType::OpRelLt {
+            if se.v_type == VarType::Int {
+                let v1 = se.value.parse::<i32>().unwrap();
+                let v2 = se2.value.parse::<i32>().unwrap();
+                let res = v1 < v2;
     
-    println!("Expression: {:?}",v);
-    v
+                se.value = res.to_string();
+            }
+            else if se.v_type == VarType::Double {
+                let v1 = se.value.parse::<f32>().unwrap();
+                let v2 = se2.value.parse::<f32>().unwrap();
+                let res = v1 < v2;
+
+                se.value = res.to_string();
+            } 
+        }
+        else if op == TokenType::OpRelLe {
+            if se.v_type == VarType::Int {
+                let v1 = se.value.parse::<i32>().unwrap();
+                let v2 = se2.value.parse::<i32>().unwrap();
+                let res = v1 <= v2;
+    
+                se.value = res.to_string();
+            }
+            else if se.v_type == VarType::Double {
+                let v1 = se.value.parse::<f32>().unwrap();
+                let v2 = se2.value.parse::<f32>().unwrap();
+                let res = v1 <= v2;
+
+                se.value = res.to_string();
+            } 
+        }
+        else if op == TokenType::OpRelGt {
+            if se.v_type == VarType::Int {
+                let v1 = se.value.parse::<i32>().unwrap();
+                let v2 = se2.value.parse::<i32>().unwrap();
+                let res = v1 > v2;
+    
+                se.value = res.to_string();
+            }
+            else if se.v_type == VarType::Double {
+                let v1 = se.value.parse::<f32>().unwrap();
+                let v2 = se2.value.parse::<f32>().unwrap();
+                let res = v1 > v2;
+
+                se.value = res.to_string();
+            } 
+        }
+        else if op == TokenType::OpRelGe {
+            if se.v_type == VarType::Int {
+                let v1 = se.value.parse::<i32>().unwrap();
+                let v2 = se2.value.parse::<i32>().unwrap();
+                let res = v1 >= v2;
+    
+                se.value = res.to_string();
+            }
+            else if se.v_type == VarType::Double {
+                let v1 = se.value.parse::<f32>().unwrap();
+                let v2 = se2.value.parse::<f32>().unwrap();
+                let res = v1 >= v2;
+
+                se.value = res.to_string();
+            } 
+        }
+        if op == TokenType::OpRelEq {
+            if se.v_type == VarType::Int {
+                let v1 = se.value.parse::<i32>().unwrap();
+                let v2 = se2.value.parse::<i32>().unwrap();
+                let res = v1 == v2;
+    
+                se.value = res.to_string();
+            }
+            else if se.v_type == VarType::Double {
+                let v1 = se.value.parse::<f32>().unwrap();
+                let v2 = se2.value.parse::<f32>().unwrap();
+                let res = v1 == v2;
+
+                se.value = res.to_string();
+            }
+            else if se.v_type == VarType::Bool {
+                let v1 = se.value.parse::<bool>().unwrap();
+                let v2 = se2.value.parse::<bool>().unwrap();
+                let res = v1 == v2;
+
+                se.value = res.to_string();
+            }
+        }
+        if op == TokenType::OpRelNe {
+            if se.v_type == VarType::Int {
+                let v1 = se.value.parse::<i32>().unwrap();
+                let v2 = se2.value.parse::<i32>().unwrap();
+                let res = v1 != v2;
+    
+                se.value = res.to_string();
+            }
+            else if se.v_type == VarType::Double {
+                let v1 = se.value.parse::<f32>().unwrap();
+                let v2 = se2.value.parse::<f32>().unwrap();
+                let res = v1 != v2;
+
+                se.value = res.to_string();
+            }
+            else if se.v_type == VarType::Bool {
+                let v1 = se.value.parse::<bool>().unwrap();
+                let v2 = se2.value.parse::<bool>().unwrap();
+                let res = v1 != v2;
+
+                se.value = res.to_string();
+            }
+        }
+
+        se.v_type = VarType::Bool;
+        temp = lexer.peek_token().t_type;
+    }
+    println!("Expression: {:?}",se);
+    se
 }
 
 pub fn simple_expression(lexer: &mut Lexer, debug: bool, simbolos : &mut HashMap<String, VarStruct>) -> VarStruct {
     if debug { println!("simple_expression"); }
-    //(sign)? term (addition-operator term)* | '"' [a-zA-Z]* '"' | "'" [a-zA-z] "'"
+    //(sign)? term (addition-operator term)* 
     //fazer sign
     let mut t = term(lexer, debug, simbolos);
     //fazer while
@@ -262,6 +384,8 @@ pub fn simple_expression(lexer: &mut Lexer, debug: bool, simbolos : &mut HashMap
     while temp == TokenType::OpSum || temp == TokenType::OpMinus  {
         let op = addition_operator(lexer, debug);
         let t2 = term(lexer, debug, simbolos);
+
+        if t.v_type != t2.v_type { eprintln!("Tipos incompatíveis {:?} com {:?}", t.v_type, t2.v_type); exit(1); }
 
         if op == TokenType::OpSum {
             if t.v_type == VarType::Int {
@@ -313,6 +437,8 @@ pub fn term(lexer: &mut Lexer, debug: bool, simbolos : &mut HashMap<String, VarS
     while temp == TokenType::OpMult || temp == TokenType::OpDiv || temp == TokenType::OpMod  {
         let op = multiplication_operator(lexer, debug);
         let t2 = power(lexer, debug, simbolos);
+
+        if t.v_type != t2.v_type { eprintln!("Tipos incompatíveis {:?} com {:?}", t.v_type, t2.v_type); exit(1); }
 
         if t.v_type == VarType::String || t.v_type == VarType::Bool {  eprintln!("Tipos incompatíveis: {:?} não é compatível com '*', '/' ", t.v_type); exit(1);  }
         if t2.v_type == VarType::String || t2.v_type == VarType::Bool {  eprintln!("Tipos incompatíveis: {:?} não é compatível com '*', '/' ", t2.v_type); exit(1);  }

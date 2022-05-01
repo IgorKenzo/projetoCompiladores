@@ -140,6 +140,12 @@ impl Lexer {
             }
 
             match self.cur_char {
+                '!' => {
+                    if self.peek(1) == '=' { 
+                        self.move_to_next();
+                        return self.advance_with(Token::new(String::from("!="), TokenType::OpRelNe));
+                    }
+                }
                 '=' => {
                     if self.peek(1) == '=' { 
                         self.move_to_next();
