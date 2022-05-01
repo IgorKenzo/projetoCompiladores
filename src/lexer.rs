@@ -47,7 +47,7 @@ impl Lexer {
 
         // Fazer aqui o teste de palavre reservada?
         // .
-        let reserv_words = ["main", "let", "if", "else", "while", "void" ,"char" ,"int" ,"double" ,"string"];
+        let reserv_words = ["main", "let", "if", "else", "while", "void" ,"char" ,"int" ,"double" ,"string", "bool", "true", "false"];
 
         for rw in reserv_words.iter() {
             if val == rw.to_string() {
@@ -61,6 +61,7 @@ impl Lexer {
 
     pub fn parse_number(&mut self) -> Token {
         // println!("PARSE NUM");
+        let mut floating = false;
         let mut val = String::new();
 
         while self.cur_char.is_numeric() {
@@ -69,6 +70,7 @@ impl Lexer {
         }
         
         if self.cur_char == '.' {
+            floating = true;
             val.push(self.cur_char);
             self.move_to_next();
         }
@@ -93,8 +95,12 @@ impl Lexer {
             self.move_to_next();
         }
 
-
-        Token::new(val, TokenType::Literal)
+        if floating {
+            Token::new(val, TokenType::DoubleLiteral)
+        } else {
+            Token::new(val, TokenType::IntLiteral)
+        }
+        
     }
 
     pub fn parse_string(&mut self) -> Token {

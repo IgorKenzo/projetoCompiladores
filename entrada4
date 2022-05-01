@@ -1,0 +1,7 @@
+main {
+    let a : int = 10;
+    let b : int = 2;
+    let c : double = 3.14;
+    let d : string = "teste";
+    let e : int = 2.9;
+}

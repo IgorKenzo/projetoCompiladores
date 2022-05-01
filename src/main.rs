@@ -10,7 +10,6 @@ use token::VarType;
 
 use std::env;
 
-
 use std::fs;
 use std::process::exit;
 use std::collections::HashMap;
@@ -137,7 +136,15 @@ pub fn assignment_statement(lexer: &mut Lexer, debug: bool, simbolos : &mut Hash
 
     let val = expression(lexer, debug, simbolos);
 
-    simbolos.get_mut(&iden.value).unwrap().value = val.to_string();
+    let mut v = simbolos.get_mut(&iden.value).unwrap();
+
+    if v.v_type != val.v_type {
+        eprintln!("Atriubuição de tipo {:?} em variável de tipo {:?} não da certo", val.v_type, v.v_type); 
+        exit(1);
+    }
+    
+    v.value = val.value;
+
     println!("{:?}", simbolos);
 }
 
@@ -163,12 +170,19 @@ pub fn var_declare_statement(lexer: &mut Lexer, debug: bool, simbolos : &mut Has
 
     assert_eq!(iden.t_type, TokenType::Identificador);
 
-    //;
+    //:
     read_token_type(lexer, TokenType::Colon);
 
     // ler type
     let tipo = lexer.next_token();
     
+    match simbolos.get(&iden.value) {
+        Some(_) => { 
+            eprintln!("Variável {} já declarada", iden.value);
+            exit(1);
+        },
+        None => {}
+    }
     
     match tipo.t_type {
         TokenType::DataType(t) => {
@@ -181,7 +195,15 @@ pub fn var_declare_statement(lexer: &mut Lexer, debug: bool, simbolos : &mut Has
     if lexer.peek_token().t_type == TokenType::OpAssign {
         read_token_type(lexer, TokenType::OpAssign);
         let val = expression(lexer, debug, simbolos);
-        simbolos.get_mut(&iden.value).unwrap().value = val.to_string();
+
+        let mut v = simbolos.get_mut(&iden.value).unwrap();
+
+        if v.v_type != val.v_type {
+            eprintln!("Atriubuição de tipo {:?} em variável de tipo {:?} não da certo", val.v_type, v.v_type); 
+            exit(1);
+        }
+        
+        v.value = val.value;
     }
 
     println!("{:?}", simbolos);
@@ -220,16 +242,16 @@ pub fn if_statement(lexer: &mut Lexer, debug: bool, simbolos : &mut HashMap<Stri
 }
 
 
-pub fn expression(lexer: &mut Lexer, debug: bool, simbolos : &mut HashMap<String, VarStruct>) -> i32 {
+pub fn expression(lexer: &mut Lexer, debug: bool, simbolos : &mut HashMap<String, VarStruct>) -> VarStruct {
     if debug { println!("expression"); }
     // expression ::= simple-expression (relational-operator simple-expression)*
     let v = simple_expression(lexer, debug, simbolos);
     
-    println!("Expression: {}",v);
+    println!("Expression: {:?}",v);
     v
 }
 
-pub fn simple_expression(lexer: &mut Lexer, debug: bool, simbolos : &mut HashMap<String, VarStruct>) -> i32 {
+pub fn simple_expression(lexer: &mut Lexer, debug: bool, simbolos : &mut HashMap<String, VarStruct>) -> VarStruct {
     if debug { println!("simple_expression"); }
     //(sign)? term (addition-operator term)* | '"' [a-zA-Z]* '"' | "'" [a-zA-z] "'"
     //fazer sign
@@ -242,10 +264,36 @@ pub fn simple_expression(lexer: &mut Lexer, debug: bool, simbolos : &mut HashMap
         let t2 = term(lexer, debug, simbolos);
 
         if op == TokenType::OpSum {
-            t += t2;
+            if t.v_type == VarType::Int {
+                let mut v1 = t.value.parse::<i32>().unwrap();
+                let v2 = t2.value.parse::<i32>().unwrap();
+                v1 += v2;
+    
+                t.value = v1.to_string();
+            }
+            else if t.v_type == VarType::Double {
+                let mut v1 = t.value.parse::<f32>().unwrap();
+                let v2 = t2.value.parse::<f32>().unwrap();
+                v1 += v2;
+
+                t.value = v1.to_string();
+            }
         }
         else if op == TokenType::OpMinus {
-            t -= t2;
+            if t.v_type == VarType::Int {
+                let mut v1 = t.value.parse::<i32>().unwrap();
+                let v2 = t2.value.parse::<i32>().unwrap();
+                v1 -= v2;
+                
+                t.value = v1.to_string();
+            }
+            else if t.v_type == VarType::Double {
+                let mut v1 = t.value.parse::<f32>().unwrap();
+                let v2 = t2.value.parse::<f32>().unwrap();
+                v1 -= v2;
+
+                t.value = v1.to_string();
+            }
         }
 
         temp = lexer.peek_token().t_type;
@@ -254,7 +302,7 @@ pub fn simple_expression(lexer: &mut Lexer, debug: bool, simbolos : &mut HashMap
     t
 }
 
-pub fn term(lexer: &mut Lexer, debug: bool, simbolos : &mut HashMap<String, VarStruct>) -> i32 {
+pub fn term(lexer: &mut Lexer, debug: bool, simbolos : &mut HashMap<String, VarStruct>) -> VarStruct {
     if debug { println!("term"); }
     //term ::= factor (multiplication-operator factor)*
 
@@ -266,14 +314,57 @@ pub fn term(lexer: &mut Lexer, debug: bool, simbolos : &mut HashMap<String, VarS
         let op = multiplication_operator(lexer, debug);
         let t2 = power(lexer, debug, simbolos);
 
+        if t.v_type == VarType::String || t.v_type == VarType::Bool {  eprintln!("Tipos incompatíveis: {:?} não é compatível com '*', '/' ", t.v_type); exit(1);  }
+        if t2.v_type == VarType::String || t2.v_type == VarType::Bool {  eprintln!("Tipos incompatíveis: {:?} não é compatível com '*', '/' ", t2.v_type); exit(1);  }
+
         if op == TokenType::OpMult {
-            t *= t2;
+            if t.v_type == VarType::Int {
+                let mut v1 = t.value.parse::<i32>().unwrap();
+                let v2 = t2.value.parse::<i32>().unwrap();
+                v1 *= v2;
+                
+                t.value = v1.to_string();
+            }
+            else if t.v_type == VarType::Double {
+                let mut v1 = t.value.parse::<f32>().unwrap();
+                let v2 = t2.value.parse::<f32>().unwrap();
+                v1 *= v2;
+
+                t.value = v1.to_string();
+            }
+            
         }
         else if op == TokenType::OpDiv {
-            t /= t2;
+            if t.v_type == VarType::Int {
+                let mut v1 = t.value.parse::<i32>().unwrap();
+                let v2 = t2.value.parse::<i32>().unwrap();
+                v1 /= v2;
+                
+                t.value = v1.to_string();
+            }
+            else if t.v_type == VarType::Double {
+                let mut v1 = t.value.parse::<f32>().unwrap();
+                let v2 = t2.value.parse::<f32>().unwrap();
+                v1 /= v2;
+
+                t.value = v1.to_string();
+            }
         }
         else if op == TokenType::OpMod {
-            t %= t2;
+            if t.v_type == VarType::Int {
+                let mut v1 = t.value.parse::<i32>().unwrap();
+                let v2 = t2.value.parse::<i32>().unwrap();
+                v1 %= v2;
+                
+                t.value = v1.to_string();
+            }
+            else if t.v_type == VarType::Double {
+                let mut v1 = t.value.parse::<f32>().unwrap();
+                let v2 = t2.value.parse::<f32>().unwrap();
+                v1 %= v2;
+
+                t.value = v1.to_string();
+            }
         }
 
         temp = lexer.peek_token().t_type;
@@ -299,13 +390,13 @@ pub fn multiplication_operator(lexer: &mut Lexer, debug: bool) -> TokenType {
 
 pub fn power_operator(lexer: &mut Lexer, debug: bool) -> TokenType {
     if debug { println!("power_operator"); }
-    //multiplication-operator ::= "*" | "/" | % | "&&" 
+    //power-operator ::= "**"
     let tok = lexer.next_token();
     tok.t_type
 }
 // -------
 
-pub fn power(lexer: &mut Lexer, debug: bool, simbolos : &mut HashMap<String, VarStruct>) -> i32 {
+pub fn power(lexer: &mut Lexer, debug: bool, simbolos : &mut HashMap<String, VarStruct>) -> VarStruct {
 
     let mut t = factor(lexer, debug, simbolos);
     //fazer while
@@ -315,8 +406,17 @@ pub fn power(lexer: &mut Lexer, debug: bool, simbolos : &mut HashMap<String, Var
         let op = power_operator(lexer, debug);
         let t2 = factor(lexer, debug, simbolos);
 
+        if t.v_type != t2.v_type { eprintln!("Tipos incompatíveis {:?} com {:?}", t.v_type, t2.v_type); exit(1); }
+
+        if t.v_type == VarType::String || t.v_type == VarType::Bool {  eprintln!("Tipos incompatíveis: {:?} não é compatível com **", t.v_type); exit(1);  }
+        if t2.v_type == VarType::String || t2.v_type == VarType::Bool {  eprintln!("Tipos incompatíveis: ** não aceita {:?} como lado direito", t2.v_type); exit(1);  }
+
         if op == TokenType::OpPower {
-            t = t.pow(t2 as u32);
+
+            if t.v_type == VarType::Int {
+                t.value = t.value.parse::<i32>().unwrap().pow(t2.value.parse::<i32>().unwrap() as u32).to_string();
+            }
+            
         }
        
         temp = lexer.peek_token().t_type;
@@ -325,7 +425,7 @@ pub fn power(lexer: &mut Lexer, debug: bool, simbolos : &mut HashMap<String, Var
     t
 }
 
-pub fn factor(lexer: &mut Lexer, debug: bool, simbolos : &mut HashMap<String, VarStruct>) -> i32 {
+pub fn factor(lexer: &mut Lexer, debug: bool, simbolos : &mut HashMap<String, VarStruct>) -> VarStruct {
     if debug { println!("factor"); }
     //factor ::= '!'* ( variable | number | string | '(' expression ')' )
     let tok = lexer.next_token();
@@ -334,15 +434,26 @@ pub fn factor(lexer: &mut Lexer, debug: bool, simbolos : &mut HashMap<String, Va
     if tok.t_type == TokenType::Identificador {
         let v_stru = simbolos.get_mut(&tok.value).unwrap();
         match v_stru.v_type {
-            VarType::Int => { return v_stru.value.parse::<i32>().unwrap(); }
-            _ => {return i32::MIN;}
+            VarType::Int => { return VarStruct { value: v_stru.value.clone(), v_type: v_stru.v_type } }
+            
+            _ => {return VarStruct{value: "Error".to_owned(), v_type: VarType::Void} }
         }
     }
-
-    if  tok.t_type == TokenType::Literal { //|| tok.t_type == TokenType::StringLiteral
-        // println!("AEHO não sei oq fazer");
-        return tok.value.parse::<i32>().unwrap();
+    else if tok.t_type == TokenType::IntLiteral { 
+        return VarStruct{ value: tok.value, v_type: VarType::Int };//tok.value.parse::<i32>().unwrap();
     }
+    else if tok.t_type == TokenType::DoubleLiteral { 
+        return VarStruct{ value: tok.value, v_type: VarType::Double };//tok.value.parse::<i32>().unwrap();
+    }
+    else if tok.t_type == TokenType::StringLiteral {
+        // println!("AEHO não sei oq fazer");
+        return VarStruct{ value: tok.value, v_type: VarType::String };//tok.value.parse::<i32>().unwrap();
+    }
+    else if tok.t_type == TokenType::True || tok.t_type == TokenType::False {
+        // println!("AEHO não sei oq fazer");
+        return VarStruct{ value: tok.value, v_type: VarType::Bool };//tok.value.parse::<i32>().unwrap();
+    }
+
     
     if tok.t_type == TokenType::LPar {
         
@@ -352,8 +463,12 @@ pub fn factor(lexer: &mut Lexer, debug: bool, simbolos : &mut HashMap<String, Va
         return t;
     }
 
-    -1
+
+    eprintln!("Não foi possível achar nenhum valor {:?}", tok.t_type);
+
+    VarStruct{value: "Error".to_owned(), v_type: VarType::Void}
 }
+
 
 // pub fn identifier(lexer: &mut Lexer) {
 //     //TokenType::identifier

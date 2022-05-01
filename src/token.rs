@@ -24,9 +24,13 @@ pub enum TokenType{
         
     
 
-    //
-    Literal,
-    StringLiteral,
+        //Literal Types
+        IntLiteral,
+        DoubleLiteral,
+        StringLiteral,
+        True,
+        False,
+
     LCol,
     RCol,
     LPar,
@@ -66,6 +70,9 @@ impl TokenType {
             "int"  => { return TokenType::DataType(VarType::Int) },
             "double"  => { return TokenType::DataType(VarType::Double) },
             "string" => { return TokenType::DataType(VarType::String) },
+            "bool" => { return TokenType::DataType(VarType::Bool) },
+            "true" => { return TokenType::True },
+            "false" => { return TokenType::False },
             _ => { return TokenType::Error; }
         }
     }
@@ -78,8 +85,9 @@ pub enum VarType {
     Int,
     Double,
     String,
+    Bool
 }
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct VarStruct {
     pub value : String,
     pub v_type: VarType
