@@ -559,13 +559,16 @@ pub fn power(lexer: &mut Lexer, debug: bool, simbolos : &mut HashMap<String, Var
 
         if t.v_type != t2.v_type { eprintln!("Tipos incompatíveis {:?} com {:?}", t.v_type, t2.v_type); exit(1); }
 
-        if t.v_type == VarType::String || t.v_type == VarType::Bool {  eprintln!("Tipos incompatíveis: {:?} não é compatível com **", t.v_type); exit(1);  }
+        if t.v_type == VarType::String || t.v_type == VarType::Bool {  eprintln!("Tipo incompatível: {:?} não é compatível com **", t.v_type); exit(1);  }
         if t2.v_type == VarType::String || t2.v_type == VarType::Bool {  eprintln!("Tipos incompatíveis: ** não aceita {:?} como lado direito", t2.v_type); exit(1);  }
 
         if op == TokenType::OpPower {
 
             if t.v_type == VarType::Int {
                 t.value = t.value.parse::<i32>().unwrap().pow(t2.value.parse::<i32>().unwrap() as u32).to_string();
+            }
+            else if t.v_type == VarType::Double {
+                t.value = t.value.parse::<f32>().unwrap().powf(t2.value.parse::<f32>().unwrap()).to_string();
             }
             
         }
