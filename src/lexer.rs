@@ -145,7 +145,7 @@ impl Lexer {
                         self.move_to_next();
                         return self.advance_with(Token::new(String::from("!="), TokenType::OpRelNe));
                     }
-                }
+                },
                 '=' => {
                     if self.peek(1) == '=' { 
                         self.move_to_next();
@@ -181,6 +181,18 @@ impl Lexer {
                     } else { 
                         return self.advance_with(Token::new(String::from("<"), TokenType::OpRelLt));
                     };
+                },
+                '&' => {
+                    if self.peek(1) == '&' { 
+                        self.move_to_next();
+                        return self.advance_with(Token::new(String::from("&&"), TokenType::OpLogAnd));
+                    }
+                },
+                '|' => {
+                    if self.peek(1) == '|' { 
+                        self.move_to_next();
+                        return self.advance_with(Token::new(String::from("||"), TokenType::OpLogOr));
+                    }
                 },
                 '(' => return self.advance_with(Token::new(self.cur_char.to_string(), TokenType::LPar)),
                 ')' => return self.advance_with(Token::new(self.cur_char.to_string(), TokenType::RPar)),

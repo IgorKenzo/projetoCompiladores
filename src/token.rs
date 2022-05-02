@@ -21,8 +21,9 @@ pub enum TokenType{
         OpRelEq,
         OpRelNe,
 
-        
-    
+        //Logic
+        OpLogAnd,
+        OpLogOr,
 
         //Literal Types
         IntLiteral,

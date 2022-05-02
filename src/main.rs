@@ -62,7 +62,7 @@ fn debug_lexer_peek(mut lexer: Lexer) {
 pub fn read_token_type(lexer: &mut Lexer, token_type : TokenType) {
     let tok = lexer.next_token();
     if tok.t_type != token_type {
-        eprintln!("Syntax error");
+        eprintln!("Syntax error: {:?} era esperado", token_type);
         exit(1);
     }
 }
@@ -381,7 +381,7 @@ pub fn simple_expression(lexer: &mut Lexer, debug: bool, simbolos : &mut HashMap
     //fazer while
     let mut temp = lexer.peek_token().t_type;
 
-    while temp == TokenType::OpSum || temp == TokenType::OpMinus  {
+    while temp == TokenType::OpSum || temp == TokenType::OpMinus || temp == TokenType::OpLogOr {
         let op = addition_operator(lexer, debug);
         let t2 = term(lexer, debug, simbolos);
 
@@ -419,6 +419,19 @@ pub fn simple_expression(lexer: &mut Lexer, debug: bool, simbolos : &mut HashMap
                 t.value = v1.to_string();
             }
         }
+        else if op == TokenType::OpLogOr {
+            if t.v_type == VarType::Bool {
+                let v1 = t.value.parse::<bool>().unwrap();
+                let v2 = t2.value.parse::<bool>().unwrap();
+                let res = v1 || v2;
+
+                t.value = res.to_string();
+                t.v_type = VarType::Bool;
+            } else {
+                eprintln!("O operador ' || ' só aceita operações com booleanos");
+                exit(1);
+            }
+        }
 
         temp = lexer.peek_token().t_type;
     }
@@ -428,20 +441,20 @@ pub fn simple_expression(lexer: &mut Lexer, debug: bool, simbolos : &mut HashMap
 
 pub fn term(lexer: &mut Lexer, debug: bool, simbolos : &mut HashMap<String, VarStruct>) -> VarStruct {
     if debug { println!("term"); }
-    //term ::= factor (multiplication-operator factor)*
+    //term ::= power (multiplication-operator power)*
 
     let mut t = power(lexer, debug, simbolos);
     //fazer while
     let mut temp = lexer.peek_token().t_type;
 
-    while temp == TokenType::OpMult || temp == TokenType::OpDiv || temp == TokenType::OpMod  {
+    while temp == TokenType::OpMult || temp == TokenType::OpDiv || temp == TokenType::OpMod || temp == TokenType::OpLogAnd {
         let op = multiplication_operator(lexer, debug);
         let t2 = power(lexer, debug, simbolos);
 
-        if t.v_type != t2.v_type { eprintln!("Tipos incompatíveis {:?} com {:?}", t.v_type, t2.v_type); exit(1); }
+        if t.v_type != t2.v_type { eprintln!("Tipos incompatíveis {:?} com {:?} no operador {:?}", t.v_type, t2.v_type, op); exit(1); }
 
-        if t.v_type == VarType::String || t.v_type == VarType::Bool {  eprintln!("Tipos incompatíveis: {:?} não é compatível com '*', '/' ", t.v_type); exit(1);  }
-        if t2.v_type == VarType::String || t2.v_type == VarType::Bool {  eprintln!("Tipos incompatíveis: {:?} não é compatível com '*', '/' ", t2.v_type); exit(1);  }
+        if t.v_type == VarType::String {  eprintln!("Tipos incompatíveis: {:?} não é compatível com '*', '/' ", t.v_type); exit(1);  }
+        if t2.v_type == VarType::String {  eprintln!("Tipos incompatíveis: {:?} não é compatível com '*', '/' ", t2.v_type); exit(1);  }
 
         if op == TokenType::OpMult {
             if t.v_type == VarType::Int {
@@ -492,6 +505,18 @@ pub fn term(lexer: &mut Lexer, debug: bool, simbolos : &mut HashMap<String, VarS
                 t.value = v1.to_string();
             }
         }
+        else if op == TokenType::OpLogAnd {
+            if t.v_type == VarType::Bool {
+                let v1 = t.value.parse::<bool>().unwrap();
+                let v2 = t2.value.parse::<bool>().unwrap();
+                let res = v1 && v2;
+
+                t.value = res.to_string();
+            } else {
+                eprintln!("O operador ' && ' só aceita operações com booleanos");
+                exit(1);
+            }
+        }
 
         temp = lexer.peek_token().t_type;
     }
@@ -523,7 +548,7 @@ pub fn power_operator(lexer: &mut Lexer, debug: bool) -> TokenType {
 // -------
 
 pub fn power(lexer: &mut Lexer, debug: bool, simbolos : &mut HashMap<String, VarStruct>) -> VarStruct {
-
+    //power ::= factor (power-operator factor)*
     let mut t = factor(lexer, debug, simbolos);
     //fazer while
     let mut temp = lexer.peek_token().t_type;
@@ -560,9 +585,8 @@ pub fn factor(lexer: &mut Lexer, debug: bool, simbolos : &mut HashMap<String, Va
     if tok.t_type == TokenType::Identificador {
         let v_stru = simbolos.get_mut(&tok.value).unwrap();
         match v_stru.v_type {
-            VarType::Int => { return VarStruct { value: v_stru.value.clone(), v_type: v_stru.v_type } }
-            
-            _ => {return VarStruct{value: "Error".to_owned(), v_type: VarType::Void} }
+            _ => { return VarStruct { value: v_stru.value.clone(), v_type: v_stru.v_type } }
+            //_ => {return VarStruct{value: "Error".to_owned(), v_type: VarType::Void} }
         }
     }
     else if tok.t_type == TokenType::IntLiteral { 
