@@ -1,0 +1,32 @@
+main {
+    if true {
+        9;
+    } else {
+        10;
+    }
+
+    if false {
+        if false {
+            
+        } else {
+            2;
+        }
+    } else {
+        11;
+    }
+
+
+    if true {
+        if true {
+            42; 
+        } else {
+            44;
+        }
+    } else {
+        if true {
+            52; 
+         } else {
+            54;
+         }
+    }
+}

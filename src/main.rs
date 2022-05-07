@@ -78,21 +78,20 @@ pub fn cmp_token_type(t1 : TokenType, t2 : TokenType) {
 
 pub fn program(lexer: &mut Lexer, debug: bool) {
     if debug { println!("program"); }
-
+    let mut simbolos : HashMap<String, VarStruct> = HashMap::new();
     read_token_type(lexer, TokenType::ReservMain);
-    block(lexer, debug);
+    block(lexer, debug, &mut simbolos);
     // read_token_type(lexer, TokenType::LCol);
     // num(lexer);
     // read_token_type(lexer, TokenType::RCol);
 
 }
 
-pub fn block(lexer: &mut Lexer, debug: bool) {
+pub fn block(lexer: &mut Lexer, debug: bool, simbolos : &mut HashMap<String, VarStruct>) {
     if debug { println!("block"); }
     //block ::= "{" statement-list "}"
-    let mut simbolos : HashMap<String, VarStruct> = HashMap::new();
     read_token_type(lexer, TokenType::LCol);
-    statement_list(lexer, debug, &mut simbolos);
+    statement_list(lexer, debug, simbolos);
     read_token_type(lexer, TokenType::RCol);
 }
 
@@ -226,18 +225,56 @@ pub fn while_statement(lexer: &mut Lexer, debug: bool, simbolos : &mut HashMap<S
     //while-statement ::= "while" expression block
     read_token_type(lexer, TokenType::ReservWhile);
     expression(lexer, debug, simbolos);
-    block(lexer, debug);
+    block(lexer, debug, simbolos);
 }
 
 pub fn if_statement(lexer: &mut Lexer, debug: bool, simbolos : &mut HashMap<String, VarStruct>) {
     if debug { println!("if_statement"); }
     //if-statement ::= "if" expression block ('else' block)?
     read_token_type(lexer, TokenType::ReservIf);
-    expression(lexer, debug, simbolos);
-    block(lexer, debug);
+
+    let cond = expression(lexer, debug, simbolos);
+    if cond.v_type != VarType::Bool { eprintln!("Condição do IF tem que ser booleano. linha {}", line!());exit(1); }
+
+    let entra_if = cond.value.parse::<bool>().unwrap();
+
+
+    if entra_if {
+        block(lexer, debug, simbolos);
+    } else {
+        let mut stack : Vec<bool> = Vec::new();
+
+        read_token_type(lexer, TokenType::LCol);
+        
+        stack.push(false);
+
+        while stack.len() != 0 {
+            let tt = lexer.next_token().t_type;
+            if tt == TokenType::LCol { stack.push(false) }
+            if tt == TokenType::RCol { stack.pop(); }    
+        }
+        
+    }
+    
     if lexer.peek_token().t_type == TokenType::ReservElse { //criar outro peek de token
         read_token_type(lexer, TokenType::ReservElse);
-        block(lexer, debug);
+        if !entra_if {
+            block(lexer, debug, simbolos);
+        }
+        else {
+            let mut stack : Vec<bool> = Vec::new();
+
+            read_token_type(lexer, TokenType::LCol);
+                    
+            stack.push(false);
+
+            while stack.len() != 0 {
+                let tt = lexer.next_token().t_type;
+                if tt == TokenType::LCol { stack.push(false) }
+                if tt == TokenType::RCol { stack.pop(); }    
+            }
+        }
+        
     }
 }
 
