@@ -32,6 +32,17 @@ pub fn parser(code: String, debug: bool) {
 
     // debug_lexer(lexer);
     // debug_lexer_peek(lexer);
+    // debug_goto(lexer);
+}
+
+#[allow(dead_code)]
+fn debug_goto(mut lexer: Lexer) {
+    let i = lexer.index;
+
+    println!("{}; {}; {}; {}", lexer.index.clone(), i, lexer.next_token().value, lexer.index);
+    lexer.index = i;
+    lexer.cur_char = lexer.code.chars().nth(i as usize).unwrap();
+    println!("{}; {}; {}; {}", lexer.index.clone(), i, lexer.next_token().value, lexer.index);
 }
 
 #[allow(dead_code)]
@@ -224,8 +235,35 @@ pub fn while_statement(lexer: &mut Lexer, debug: bool, simbolos : &mut HashMap<S
     if debug { println!("while_statement"); }
     //while-statement ::= "while" expression block
     read_token_type(lexer, TokenType::ReservWhile);
-    expression(lexer, debug, simbolos);
-    block(lexer, debug, simbolos);
+
+    let returnTo = lexer.index;
+
+    
+    let mut cond = expression(lexer, debug, simbolos);
+    
+    if cond.v_type != VarType::Bool { eprintln!("Condição do WHILE tem que ser booleano. linha {}", line!());exit(1); }
+
+    while cond.value == "true" {
+        block(lexer, debug, simbolos);
+        lexer.index = returnTo;
+        lexer.cur_char = lexer.code.chars().nth(returnTo as usize).unwrap();
+        cond = expression(lexer, debug, simbolos);
+    }
+
+    let mut stack : Vec<bool> = Vec::new();
+
+    read_token_type(lexer, TokenType::LCol);
+    
+    stack.push(false);
+    ignore_tokens_in_block(lexer, stack);
+}
+
+fn ignore_tokens_in_block(lexer: &mut Lexer,mut stack: Vec<bool>) {
+    while stack.len() != 0 {
+        let tt = lexer.next_token().t_type;
+        if tt == TokenType::LCol { stack.push(false) }
+        if tt == TokenType::RCol { stack.pop(); }    
+    }
 }
 
 pub fn if_statement(lexer: &mut Lexer, debug: bool, simbolos : &mut HashMap<String, VarStruct>) {
@@ -248,12 +286,12 @@ pub fn if_statement(lexer: &mut Lexer, debug: bool, simbolos : &mut HashMap<Stri
         
         stack.push(false);
 
-        while stack.len() != 0 {
-            let tt = lexer.next_token().t_type;
-            if tt == TokenType::LCol { stack.push(false) }
-            if tt == TokenType::RCol { stack.pop(); }    
-        }
-        
+        // while stack.len() != 0 {
+        //     let tt = lexer.next_token().t_type;
+        //     if tt == TokenType::LCol { stack.push(false) }
+        //     if tt == TokenType::RCol { stack.pop(); }    
+        // }
+        ignore_tokens_in_block(lexer, stack);
     }
     
     if lexer.peek_token().t_type == TokenType::ReservElse { //criar outro peek de token
@@ -268,11 +306,13 @@ pub fn if_statement(lexer: &mut Lexer, debug: bool, simbolos : &mut HashMap<Stri
                     
             stack.push(false);
 
-            while stack.len() != 0 {
-                let tt = lexer.next_token().t_type;
-                if tt == TokenType::LCol { stack.push(false) }
-                if tt == TokenType::RCol { stack.pop(); }    
-            }
+            // while stack.len() != 0 {
+            //     let tt = lexer.next_token().t_type;
+            //     if tt == TokenType::LCol { stack.push(false) }
+            //     if tt == TokenType::RCol { stack.pop(); }    
+            // }
+
+            ignore_tokens_in_block(lexer, stack);
         }
         
     }
