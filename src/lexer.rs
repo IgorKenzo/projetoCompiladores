@@ -47,7 +47,7 @@ impl Lexer {
 
         // Fazer aqui o teste de palavre reservada?
         // .
-        let reserv_words = ["main", "let", "if", "else", "while", "void" ,"char" ,"int" ,"double" ,"string", "bool", "true", "false"];
+        let reserv_words = ["main", "let", "if", "else", "while", "print", "void" ,"char" ,"int" ,"double" ,"string", "bool", "true", "false"];
 
         for rw in reserv_words.iter() {
             if val == rw.to_string() {
@@ -200,6 +200,7 @@ impl Lexer {
                 '}' => return self.advance_with(Token::new(self.cur_char.to_string(), TokenType::RCol)),
                 ':' => return self.advance_with(Token::new(self.cur_char.to_string(), TokenType::Colon)),
                 ';' => return self.advance_with(Token::new(self.cur_char.to_string(), TokenType::SemiCol)),
+                ',' => return self.advance_with(Token::new(self.cur_char.to_string(), TokenType::Comma)),
                 _ => return self.advance_with(Token::new(String::from("UNK"), TokenType::ErUNK))
             }
         }

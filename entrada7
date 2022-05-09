@@ -2,7 +2,7 @@ main {
     let a : int = 3;
     let b : int = 5;
 
-    let c : bool = (1 > 5) || (3 == 3);
+    let c : bool = (1 > b) || (3 == 3);
 
-    c && true;
+    print(c && true);
 }

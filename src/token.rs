@@ -38,6 +38,7 @@ pub enum TokenType{
     RPar,
     SemiCol,
     Colon,
+    Comma,
 
     //Palavras Reservadas
     ReservMain,
@@ -45,6 +46,7 @@ pub enum TokenType{
     ReservIf,
     ReservElse,
     ReservWhile,
+    ReservPrint,
     // ReservVoid,
     // ReservChar,
     // ReservInt,
@@ -66,6 +68,7 @@ impl TokenType {
             "if" => { return TokenType::ReservIf },
             "else" => { return TokenType::ReservElse },
             "while" => { return TokenType::ReservWhile },
+            "print" => { return TokenType::ReservPrint },
             "void"  => { return TokenType::DataType(VarType::Void) },
             "char"  => { return TokenType::DataType(VarType::Char) },
             "int"  => { return TokenType::DataType(VarType::Int) },

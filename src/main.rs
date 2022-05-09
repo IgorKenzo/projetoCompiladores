@@ -131,6 +131,10 @@ pub fn statement(lexer: &mut Lexer, debug: bool, simbolos : &mut HashMap<String,
         assignment_statement(lexer, debug, simbolos);
         read_token_type(lexer, TokenType::SemiCol);    
     }
+    else if lexer.peek_token().t_type == TokenType::ReservPrint {
+        print(lexer, debug, simbolos);
+        read_token_type(lexer, TokenType::SemiCol);    
+    }
     else { //arrumar
         expression(lexer, debug, simbolos);
         read_token_type(lexer, TokenType::SemiCol);
@@ -155,7 +159,7 @@ pub fn assignment_statement(lexer: &mut Lexer, debug: bool, simbolos : &mut Hash
     
     v.value = val.value;
 
-    println!("{:?}", simbolos);
+    // println!("{:?}", simbolos);
 }
 
 pub fn structured_statement(lexer: &mut Lexer, i: u8, debug: bool, simbolos : &mut HashMap<String, VarStruct>) {
@@ -216,7 +220,7 @@ pub fn var_declare_statement(lexer: &mut Lexer, debug: bool, simbolos : &mut Has
         v.value = val.value;
     }
 
-    println!("{:?}", simbolos);
+    // println!("{:?}", simbolos);
 }
 
 pub fn loop_statement(lexer: &mut Lexer, debug: bool, simbolos : &mut HashMap<String, VarStruct>) {
@@ -446,7 +450,7 @@ pub fn expression(lexer: &mut Lexer, debug: bool, simbolos : &mut HashMap<String
         se.v_type = VarType::Bool;
         temp = lexer.peek_token().t_type;
     }
-    println!("Expression: {:?}",se);
+    // println!("Expression: {:?}",se);
     se
 }
 
@@ -699,17 +703,20 @@ pub fn factor(lexer: &mut Lexer, debug: bool, simbolos : &mut HashMap<String, Va
     VarStruct{value: "Error".to_owned(), v_type: VarType::Void}
 }
 
+pub fn print(lexer: &mut Lexer, debug: bool, simbolos : &mut HashMap<String, VarStruct>) {
+    read_token_type(lexer, TokenType::ReservPrint);
+    read_token_type(lexer, TokenType::LPar);
+    
+    let t = expression(lexer, debug, simbolos);
+    print!("{} ", t.value);
 
-// pub fn identifier(lexer: &mut Lexer) {
-//     //TokenType::identifier
-// }
+    while lexer.peek_token().t_type == TokenType::Comma {
+        read_token_type(lexer, TokenType::Comma);
+        let vt = expression(lexer, debug, simbolos);
+        print!("{} ", vt.value)
+    }
 
-// pub fn num(lexer: &mut Lexer, debug: bool) {
-//     let token = lexer.next_token();
+    println!("");
+    read_token_type(lexer, TokenType::RPar);
 
-//     if token.t_type == TokenType::Literal {
-//         println!("{}",token.value);
-//     } else {
-//         exit(1);
-//     }
-// }
+}
