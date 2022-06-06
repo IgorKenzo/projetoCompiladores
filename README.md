@@ -10,8 +10,10 @@ Cada parte desse projeto está separado por branchs
 
 ---
 
-Para rodar a linguagem é preciso especificar o arquivo de entrada, nessa brach existem 10 arquivos de teste.
+Para rodar a linguagem é preciso especificar o arquivo de entrada.
 
 Para executar basta usar:
 
 `cargo run <nome do arquivo>` 
+
+Essa branch mostra o lexer tokenizando a entrada.
